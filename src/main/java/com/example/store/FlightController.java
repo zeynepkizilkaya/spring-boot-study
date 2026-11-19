@@ -1,88 +1,54 @@
-
 package com.example.store;
 
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.ArrayList;
 
 @RestController
 public class FlightController {
 
-    private final List<Flight> flights = new ArrayList<>();
+    //burada dependency injection uyguladık. controller;işlemler için service sınıfına ihtiyac duyuyor ve bunu dışardan aldık
+    private final FlightService flightService;
 
-    public FlightController() {
-        flights.add(new Flight(
-                1L, "TK1923", "Turkish Airlines", "IST", "FRA"
-        ));
-
-        flights.add(new Flight(
-                2L, "LH1300", "Lufthansa", "FRA", "IST"
-        ));
+    public FlightController(FlightService flightService) {
+        this.flightService = flightService;
     }
 
-    // Bütün uçuşları getir
     @GetMapping("/api/flights")
     public List<Flight> getFlights() {
-        return flights;
+        return flightService.getAllFlights();
     }
 
-    @GetMapping("/api/flights/{id}")//bu method get request karşılayacak demek!!!!!
+    @GetMapping("/api/flights/{id}")
     public Flight getFlightById(@PathVariable long id) {
-
-        for (Flight flight : flights) {
-            if (flight.getId() == id) {
-                return flight;
-            }
-        }
-
-        return null;
+        return flightService.getFlightById(id);
     }
 
     @PostMapping("/api/flights")
     public Flight createFlight(@RequestBody Flight flight) {
-        flights.add(flight);
-        return flight;
+        return flightService.createFlight(flight);
     }
 
     @PutMapping("/api/flights/{id}")
-    public Flight updateFlight(@PathVariable long id, @RequestBody Flight updatedFlight) {
-        for (Flight flight : flights) {
+    public Flight updateFlight(
+            @PathVariable long id,
+            @RequestBody Flight updatedFlight) {
 
-            if (flight.getId() == id) {
-
-                flight.setFlightNumber(updatedFlight.getFlightNumber());
-                flight.setAirline(updatedFlight.getAirline());
-                flight.setOrigin(updatedFlight.getOrigin());
-                flight.setDestination(updatedFlight.getDestination());
-
-                return flight;
-            }
-        }
-
-        return null;
+        return flightService.updateFlight(id, updatedFlight);
     }
 
     @DeleteMapping("/api/flights/{id}")
-    public String deleteFlight(@PathVariable long id){
+    public String deleteFlight(@PathVariable long id) {
 
-        for (Flight flight : flights) {
+        boolean removed = flightService.deleteFlight(id);
 
-            if (flight.getId() == id) {
-
-                flights.remove(flight);
-
-                return "Flight deleted successfully!";
-            }
+        if (removed) {
+            return "Flight deleted successfully!";
         }
 
         return "Flight not found!";
     }
+}
 
-    }
-
-
-
-
-//restcontroller ise html sayfası görüntülemeyeceğiz homecontroller gibi, burada api yazıyoruz kullanıcıya json formatında veri döndüreceğiz
-
+//previous controller was handling every task(ucus islemleri ekle sil vs) ama bu versiyonda service sınıfı actik ve iş yükünü azalttık controllerın
+//controller burada veri yönetmiyor service e devrettik
