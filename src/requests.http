@@ -1,0 +1,11 @@
+### Create a new flight
+POST http://localhost:8080/api/flights
+Content-Type: application/json
+
+{
+  "id": 3,
+  "flightNumber": "TK2020",
+  "airline": "Turkish Airlines",
+  "origin": "IST",
+  "destination": "LHR"
+}

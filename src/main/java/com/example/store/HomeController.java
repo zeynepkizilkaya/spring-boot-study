@@ -20,3 +20,5 @@ public class HomeController {
     }
 
 }
+
+//homecontroller kullanıcıya bir web sayfası görüntülemek için kullanılır
